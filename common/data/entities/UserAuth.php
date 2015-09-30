@@ -154,7 +154,7 @@ class UserAuth {
         try {
             $db = (new DBConnectionFactory())->getFumbolDataAccess();
 
-            $query = "select * from users where user_name='".$user_name."'";
+            $query = "select * from user_auth where user_name='".$user_name."'";
 
             return self::createFromDb($db->executeAndFetchSingle($query));
 
@@ -171,6 +171,8 @@ class UserAuth {
             $user = new UserAuth();
             $user->setUserId($resource["user_id"]);
             $user->setUserName($resource["user_name"]);
+            $user->setSalt($resource["salt"]);
+            $user->setPassword($resource["password"]);
             $user->setLastSuccessfulLogin($resource["last_successful_login"]);
 
             return $user;
