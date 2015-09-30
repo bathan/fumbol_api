@@ -22,7 +22,7 @@ namespace fumbol\common\resources {
                 }
 
                 //-- We are being asked to create a new user. First lets create the user authentication information
-                .
+
 
                 $this->getApp()->render(
                     200,
