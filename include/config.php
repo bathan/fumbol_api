@@ -15,6 +15,7 @@ $defaultValues = array(
     '_DB_USER' => 'root',
     '_DB_PASS' => 'revoluti0n',
     '_DB_CONN_ERROR_RETRIES' => 3,
+    '_TOKEN_SECRET'=>'AguanteElFumbolVieja',
 
 );
 
@@ -35,3 +36,6 @@ function pretty_print($data) {
         echo "[".$k."] = ".$v."\n";
     }
 }
+
+//Encoding Secret
+define('_ENCODING_SECRET', 'MiViejaMulaYaNoEsLoQueEra');

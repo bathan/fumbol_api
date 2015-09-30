@@ -18,6 +18,7 @@ $resourceFactory = new ResourceFactory($app);
 //-- Users
 $app->post('/api/users/?',              [$resourceFactory->getUserResource(), 'addUser']);
 $app->post('/api/users/login/?',        [$resourceFactory->getUserResource(), 'loginUser']);
+$app->post('/api/users/token/?',        [$resourceFactory->getUserResource(), 'tokenTest']);
 
 
 //-- Groups

@@ -106,7 +106,6 @@ namespace fumbol\common\resources {
 
                 $password = $form["password"].$salt;
 
-
                 if(sha1($password)!= $user_auth->getPassword()) {
                     throw new \Exception("Invalid credentials");
                 }
@@ -114,9 +113,16 @@ namespace fumbol\common\resources {
                 $user_auth->setLastSuccessfulLogin(Utilities::now());
                 $user_auth->persist();
 
+                $token_info = ["user_id"=>$user_auth->getUserId(),"user_name"=>$user_auth->getUserName(),"created"=>Utilities::now(),"env_secret"=>_TOKEN_SECRET];
+
+                $token = Utilities::generate_signed_request($token_info,_ENCODING_SECRET);
+
+                $response_data = $user_auth->toArray();
+                $response_data["token"] = $token;
+
                 $this->getApp()->render(
                     200,
-                    ['data' => $user_auth->toArray()]
+                    ['data' => $response_data]
                 );
             }catch(\Exception $e) {
 
@@ -126,6 +132,45 @@ namespace fumbol\common\resources {
                 );
             }
 
+
+        }
+
+        public function tokenTest() {
+            try {
+
+                $min_data = ['token'];
+
+                $form = $this->getApp()->request()->post();
+
+                foreach($min_data as $required_field) {
+                    if(!isset($form[$required_field])) {
+                        throw new \Exception("Missing required field ".$required_field.". Required fields are ".implode(",",$min_data));
+                    }
+                }
+
+                $token = $form["token"];
+
+                $token_info = Utilities::parse_signed_request($token,_ENCODING_SECRET);
+
+                if(is_null($token_info)) {
+                    throw new \Exception("Invalid token");
+                }
+
+                $user_id = $token_info["user_id"];
+                $user_info = User::getByUserId($user_id);
+
+                $this->getApp()->render(
+                    200,
+                    ['data' => $user_info->toArray()]
+                );
+
+            }catch(\Exception $e) {
+
+                $this->getApp()->render(
+                    500,
+                    ['error' => $e->getMessage()]
+                );
+            }
 
         }
     }
