@@ -20,6 +20,10 @@ namespace fumbol\common\resources {
             return new GroupResource($this->app);
         }
 
+        public function getMatchResource() {
+            return new MatchResource($this->app);
+        }
+
     }
 
 }

@@ -27,4 +27,8 @@ $app->get('/api/groups/:groupId?',      [$resourceFactory->getGroupResource(), '
 $app->post('/api/groups/?',             [$resourceFactory->getGroupResource(), 'addGroup']);
 $app->post('/api/groups/:groupId?',     [$resourceFactory->getGroupResource(), 'updateGroup']);
 
+
+//-- Matches
+$app->get('/api/match/check?',          [$resourceFactory->getMatchResource(), 'check']);
+
 $app->run();

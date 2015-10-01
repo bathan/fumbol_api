@@ -39,3 +39,29 @@ function pretty_print($data) {
 
 //Encoding Secret
 define('_ENCODING_SECRET', 'MiViejaMulaYaNoEsLoQueEra');
+
+//-- Dias Convocatoria : TODO Pasar esto a BBDD y permitir que un admin cree convocatorias on-the-fly
+
+define('_VENUES','{
+                              "1": {
+                                "name": "25 de Mayo",
+                                "default-hour": "22:15",
+                                "max-players" : 10,
+                                "min-players" : 8
+                              },
+                              "2": {
+                                "name": "BANADE",
+                                "default-hour": "23:00",
+                                "max-players" : 12,
+                                "min-players" : 8
+                              }
+                            }');
+
+define('_MATCH_DAYS','{
+                              "1": {
+                                "venue_id": "1"
+                              },
+                              "4": {
+                                "venue_id": "2"
+                              }
+                            }' );

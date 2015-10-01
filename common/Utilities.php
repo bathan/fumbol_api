@@ -14,6 +14,14 @@ class Utilities {
         return date("Y-m-d H:i:s");
     }
 
+    public static function today_start() {
+        return date("Y-m-d 00:00:00");
+    }
+
+    public static function today_end() {
+        return date("Y-m-d 23:59:59");
+    }
+
     /**
      * Generates a signed request from a data array
      *

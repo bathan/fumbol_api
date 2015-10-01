@@ -9,3 +9,5 @@ define('_INSTALL_URL', 'http://fumbol.tttt.com.ar/');
 
 define("_DB_HOST","localhost");
 define("_DB_CONN_ERROR_RETRIES",3);
+
+
