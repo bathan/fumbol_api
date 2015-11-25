@@ -3,7 +3,9 @@ namespace fumbol\common\resources {
 
     use fumbol\common\data\entities\User;
     use fumbol\common\data\entities\UserAuth;
+    use fumbol\common\Language;
     use fumbol\common\Utilities;
+    use fumbol\common\UserUtilities;
 
     class UserResource extends AbstractResource {
 
@@ -30,7 +32,7 @@ namespace fumbol\common\resources {
                 $nickname = $form["nickname"];
 
                 if(!Utilities::isValidEmail($email)) {
-                    throw new \Exception("Email ".$email." is not a valid email address");
+                    throw new \Exception(Language::t('USERS_NO_USER_WITH_EMAIL',"Email ".$email." is not a valid email address"));
                 }
 
                 //-- Before creating a new user, we need to check we dont have a user with this same user name
@@ -60,6 +62,9 @@ namespace fumbol\common\resources {
                 $user->setEmail($email);
                 $user->setNickname($nickname);
                 $user->persist();
+
+                //-- Remove Password from Response
+                unset($form['password']);
 
                 $this->getApp()->render(
                     200,
@@ -97,17 +102,16 @@ namespace fumbol\common\resources {
                 $user_auth = UserAuth::getByUserName($email);
 
                 if(is_null($user_auth)) {
-                    throw new \Exception("Invalid credentials");
+                    throw new \Exception("No user with that email address");
                 }
 
                 //-- Ok, we have the user_auth info, lets check the password
                 $salt = $user_auth->getSalt();
                 $salt = base64_decode($salt);
-
                 $password = $form["password"].$salt;
 
                 if(sha1($password)!= $user_auth->getPassword()) {
-                    throw new \Exception("Invalid credentials");
+                    throw new \Exception("Wrong password");
                 }
 
                 $user_auth->setLastSuccessfulLogin(Utilities::now());
@@ -150,14 +154,8 @@ namespace fumbol\common\resources {
 
                 $token = $form["token"];
 
-                $token_info = Utilities::parse_signed_request($token,_ENCODING_SECRET);
-
-                if(is_null($token_info)) {
-                    throw new \Exception("Invalid token");
-                }
-
-                $user_id = $token_info["user_id"];
-                $user_info = User::getByUserId($user_id);
+                $uu = new UserUtilities();
+                $user_info = $uu->getUserInfoFromToken($token);
 
                 $this->getApp()->render(
                     200,

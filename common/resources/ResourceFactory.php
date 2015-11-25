@@ -24,6 +24,10 @@ namespace fumbol\common\resources {
             return new MatchResource($this->app);
         }
 
+        public function getScoreBoardResource() {
+            return new ScoreBoardResource($this->app);
+        }
+
     }
 
 }

@@ -126,7 +126,7 @@ abstract class BaseDataAccess {
      * Executes a query and fetch the associative array with the result
      * @param string $query sql
      * @param int $num_rows rows affected
-     * @return The rows returned or null
+     * @return mixed The rows returned or null
      */
     public final function executeAndFetch($query, &$num_rows=-1) {
         $fetch = array();

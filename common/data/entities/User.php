@@ -198,8 +198,26 @@ class User {
         }
     }
 
-    public static function getAll($from=0,$to=0,$filters=[]) {
+    public static function getByListOfIds($list_of_ids) {
 
+        //-- Find by Id
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+
+            $query = "select * from users where user_id in (".implode(',',$list_of_ids).")";
+
+            $result = $db->executeAndFetch($query);
+
+            $list_of_users = [];
+            foreach($result as $r) {
+                $list_of_users[$r['user_id']] = self::createFromDb($r);
+            }
+
+            return $list_of_users;
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
     }
 
     private static function createFromDb($resource) {
@@ -215,6 +233,7 @@ class User {
             $user->setNickname($resource["nickname"]);
             $user->setEmail($resource["email"]);
             $user->setCreatedDate($resource["created_date"]);
+
 
             return $user;
         }

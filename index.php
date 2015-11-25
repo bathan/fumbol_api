@@ -23,12 +23,16 @@ $app->post('/api/users/token/?',        [$resourceFactory->getUserResource(), 't
 
 //-- Groups
 $app->get('/api/groups/:groupId?',      [$resourceFactory->getGroupResource(), 'getGroup']);
-
 $app->post('/api/groups/?',             [$resourceFactory->getGroupResource(), 'addGroup']);
 $app->post('/api/groups/:groupId?',     [$resourceFactory->getGroupResource(), 'updateGroup']);
 
 
 //-- Matches
 $app->get('/api/match/check?',          [$resourceFactory->getMatchResource(), 'check']);
+$app->post('/api/match/signup?',        [$resourceFactory->getMatchResource(), 'signup']);
+
+
+//-- ScoreBoard
+$app->post('/api/scoreboard/?',          [$resourceFactory->getScoreBoardResource(), 'update']);
 
 $app->run();
