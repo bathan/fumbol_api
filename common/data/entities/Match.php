@@ -336,6 +336,17 @@ class Match {
         }
     }
 
+    public static function confirmUserIdInMatchTeam($user_id,$match_id) {
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+            $query  = "UPDATE match_players set confirmed=1 where match_id='".$match_id."' and user_id = '".$user_id."'";
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
     public static function assignMatchTeamIdToPlayers($match_id,$match_team_id,$list_of_user_ids){
         //-- Find by Id
         try {
@@ -349,4 +360,33 @@ class Match {
             throw $e;
         }
     }
+
+    public static function deleteTeamsForMatch($match_id){
+        //-- Find by Id
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+
+            $query  = "delete from match_teams where match_id='".$match_id."'";
+
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public static function clearMatchTeamsInMatch($match_id){
+        //-- Find by Id
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+
+            $query  = "UPDATE match_players set match_team_id=NULL where match_id='".$match_id."'";
+
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
 }

@@ -78,5 +78,17 @@ class Utilities {
         return base64_decode(strtr($input, '-_', '+/'));
     }
 
+    public static function getPlayersInTeams($all_players,$key_column='match_team_id') {
+        $players_in_teams = [];
+        foreach ($all_players as $sp) {
+            $match_team_id = $sp[$key_column];
+            if (!is_null($match_team_id)) {
+                //-- This lets us know that we have no teams selected yet.
+                $players_in_teams[$sp[$key_column]][] = $sp;
+            }
+        }
+        return $players_in_teams;
+    }
+
 
 }

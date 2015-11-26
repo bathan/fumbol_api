@@ -120,6 +120,83 @@ class MatchLogic {
         return $today_match;
     }
 
+    public function checkAndCreateTeams($match_id) {
+        try{
+
+            //-- Build Response. Get current Match and check if we have teams
+            $current_teams = $this->getMatchTeams($match_id);
+
+            if(count($current_teams)==0) {
+                //-- Check if we need to create teams
+
+                $all_players = $this->getAllMatchPlayers($match_id);
+                $max_players_cap = (count($all_players) == MatchLogic::MAX_PLAYERS_PER_MATCH);
+                $players_in_teams = Utilities::getPlayersInTeams($all_players);
+                $no_teams = count($players_in_teams) == 0;
+
+                if ($max_players_cap && $no_teams) {
+                    //-- Assign Teams
+
+                    //-- TODO :: /// Player Selection Plugin Framework
+
+                    /// --- SHUFFLE SELECTOR V 1.0
+                    $this->createTeams($match_id,$all_players);
+                }
+            }
+
+        }catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function shuffle($match_id) {
+
+        $all_players = $this->getAllMatchPlayers($match_id);
+
+        if(count($all_players)==0) {
+            throw new \Exception("No hay jugadores para mezclar");
+        }
+
+        $max_players_cap = (count($all_players) == MatchLogic::MAX_PLAYERS_PER_MATCH);
+
+        if(!$max_players_cap) {
+            throw new \Exception("No podés volver a barajar sin todas las cartas papá");
+        }
+
+        $this->deleteTeams($match_id);
+        $this->createTeams($match_id,$all_players);
+    }
+
+    private function deleteTeams($match_id) {
+
+        Match::deleteTeamsForMatch($match_id);
+        Match::clearMatchTeamsInMatch($match_id);
+    }
+
+    private function createTeams($match_id,$all_players) {
+
+        //-- TODO:: El plugin de equipos debería llamarse aqui.
+
+        shuffle($all_players);
+        $teams = array_chunk($all_players, (MatchLogic::MAX_PLAYERS_PER_MATCH / 2), true);
+
+        //-- We have two teams
+        foreach($teams as $t_id=>$players) {
+            //--Insert Team
+            $match_team_id =$this->addMatchTeam($match_id);
+            $list_of_user_ids = [];
+
+            //-- Update users in this match, with its correpondant team id
+            foreach($players as $p) {
+                $list_of_user_ids[] = $p['user_id'];
+            }
+
+            if(count($list_of_user_ids)>0) {
+                $this->assignMatchTeamIdToPlayers($match_id,$match_team_id,$list_of_user_ids);
+            }
+        }
+    }
+
     public function addUserToMatch($user_id,$match_id) {
         try {
             $match_player_id = Match::addUserToMatch($match_id,$user_id);
@@ -138,6 +215,9 @@ class MatchLogic {
 
             $match_players = Match::getAllMatchPlayers($match_id);
 
+            if(count($match_players)==0) {
+                throw new \Exception("No match players for match ".$match_id);
+            }
             //-- Get Match Player Info
             $list_of_ids = [];
             $return = [];
@@ -212,6 +292,15 @@ class MatchLogic {
         }
     }
 
+    public function confirmPlayerInMatch($user_id,$match_id) {
+        try {
+
+            Match::confirmUserIdInMatchTeam($user_id,$match_id);
+
+        }catch (\Exception $e) {
+            throw $e;
+        }
+    }
 
 
 

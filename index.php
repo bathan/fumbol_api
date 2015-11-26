@@ -29,7 +29,10 @@ $app->post('/api/groups/:groupId?',     [$resourceFactory->getGroupResource(), '
 
 //-- Matches
 $app->get('/api/match/check?',          [$resourceFactory->getMatchResource(), 'check']);
+$app->get('/api/match/getCurrentMatch?',          [$resourceFactory->getMatchResource(), 'getCurrentMatch']);
 $app->post('/api/match/signup?',        [$resourceFactory->getMatchResource(), 'signup']);
+$app->get('/api/match/confirm/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'confirm']);
+$app->get('/api/match/shuffle/?',        [$resourceFactory->getMatchResource(), 'shuffle']);
 
 
 //-- ScoreBoard

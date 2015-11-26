@@ -1,0 +1,33 @@
+Bienvenidos a la Fumbol Api 1.0
+
+La intención de esta Api es dar la posibilidad de convocar jugadores a partidos de fútbol.
+
+Lista de Features Minimas
+
+X Creación de Usuarios
+X Login de Usuarios
+X Convocatoria a Partido
+X Creación automática de Equipos
+- Asignación de jugador "capitán"(o capitanes?) del encuentro.
+- Notificación via email
+X JSON respuesta con datos del partido y jugadores
+
+Nice To Have
+
+- "Plugins" para generación de equipos.
+- Almacenamiento de estadisticas de los partidos
+- Puntaje a Jugadores
+- Email de Validación/Cancelación de convocatoria.
+X Validación de Convocatoria
+- Cancelación de Convocatoria.
+X Nueva Creación de equipos
+
+-- Last Update : Jueves 26 de Noviembre 2015
+
+- Creación de Usuarios => /api/users POST con email,password,nickname
+- Login de Usuarios => /api/users/login POST con email,password . Devuelve userToken
+- Convocatoria a Partido => /api/match/signup POST con userToken. Suscribe al Partido que haya hoy.
+- Confirmación de Convocatoria => /api/match/confirm/{userToken}/{matchId}. Confirma la subscripción.
+- Datos del Partido de Hoy => /api/match/getCurrentMatch GET
+
+
