@@ -33,6 +33,8 @@ $app->get('/api/match/getCurrentMatch?',          [$resourceFactory->getMatchRes
 $app->post('/api/match/signup?',        [$resourceFactory->getMatchResource(), 'signup']);
 $app->get('/api/match/confirm/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'confirm']);
 $app->get('/api/match/shuffle/?',        [$resourceFactory->getMatchResource(), 'shuffle']);
+$app->get('/api/match/mariconear/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'mariconear']);
+
 
 
 //-- ScoreBoard

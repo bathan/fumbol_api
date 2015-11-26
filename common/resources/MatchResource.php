@@ -86,16 +86,75 @@ namespace fumbol\common\resources {
                 }
 
                 //-- Check and Create Teams
-                $this->match_logic->checkAndCreateTeams($match_id);
+                $teams_created = $this->match_logic->checkAndCreateTeams($match_id);
+
+                if(!$teams_created) {
+                    //-- Los equipos ya estaban creados. Probablemente se anotó alguien luego de que se bajó otro.
+                    //-- Hay que agregarlo en el equipo que menos tenga gente tenga.
+                    $this->match_logic->addUserToTeamWithLessPlayers($user_id,$match_id);
+                }
+
+                //-- Assing Capt
+                try {
+                    $match_captain_id = $this->match_logic->assignMatchCaptain($match_id);
+                }catch(\Exception $e) {
+                    //-- If we cant do it, just ignore
+                }
 
                 //-- Build Response
                 $api_response = $this->buildMatchAndTeamsResponse($current_match);
+
+                //-- Reload Current Match
+                @$current_match = $this->match_logic->getCurrentMatch();
+
+                if($current_match->getStatus()==MatchLogic::STATUS_FULL) {
+                    //-- Ok, It got complete with this last one. We should Shoot an email letting people know
+                    try{
+                        $this->match_logic->sendMatchFullEmail($current_match);
+                    }catch(\Exception $e) {
+                        //-- TODO :: Notify someone
+                    }
+                }
 
                 $this->getApp()->render(
                     200,
                     ['data' => $api_response]
                 );
 
+
+            }catch (\Exception $e) {
+                $this->getApp()->render(
+                    200,
+                    ['error' => $e->getMessage()]
+                );
+            }
+        }
+
+        public function mariconear($user_token,$match_id) {
+
+            try {
+                $this->match_logic = new MatchLogic();
+                $this->user_utilities = new UserUtilities();
+
+                $user_information = $this->user_utilities->getUserInfoFromToken($user_token);
+
+                if ($user_information) {
+                    @$current_match = $this->match_logic->getCurrentMatch();
+                } else {
+                    throw new \Exception("A quien te comiste gato? - 2");
+                }
+
+                if ($current_match->getMatchId() != $match_id) {
+                    throw new \Exception("Te acordaste tarde de avisar pibe");
+                }
+
+                //-- Ok, we are here. Lests Do this
+                $this->match_logic->mariconear($user_information->getUserId(), $match_id);
+
+                $this->getApp()->render(
+                    200,
+                    ['data' => "ok",'extra'=>'puto']
+                );
 
             }catch (\Exception $e) {
                 $this->getApp()->render(
@@ -228,10 +287,7 @@ namespace fumbol\common\resources {
             }
 
         }
+
+
     }
-
-
-
-
-
 }

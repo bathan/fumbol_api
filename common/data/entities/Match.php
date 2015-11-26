@@ -347,6 +347,28 @@ class Match {
         }
     }
 
+    public static function unConfirmUserIdInMatchTeam($user_id,$match_id) {
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+            $query  = "UPDATE match_players set confirmed=0 where match_id='".$match_id."' and user_id = '".$user_id."'";
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public static function deleteUserInMatchTeam($user_id,$match_id) {
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+            $query  = "delete from match_players where match_id='".$match_id."' and user_id = '".$user_id."'";
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
     public static function assignMatchTeamIdToPlayers($match_id,$match_team_id,$list_of_user_ids){
         //-- Find by Id
         try {
@@ -383,6 +405,35 @@ class Match {
             $query  = "UPDATE match_players set match_team_id=NULL where match_id='".$match_id."'";
 
             $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public static function flagMatchPlayer($match_id,$user_id,$flag=1){
+        //-- Find by Id
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+
+            $query  = "UPDATE match_players set flag=$flag where match_id='".$match_id."' and user_id=".$user_id;
+
+            $db->execute($query);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public static function getFlaggedPlayers($match_id,$flag=1) {
+        try {
+            $db = (new DBConnectionFactory())->getFumbolDataAccess();
+
+            $query  = "select * from match_players where match_id='".$match_id."' and flag=".$flag;
+
+            $result =  $db->executeAndFetch($query);
+
+            return $result;
 
         }catch(\Exception $e) {
             throw $e;

@@ -122,6 +122,7 @@ class MatchLogic {
 
     public function checkAndCreateTeams($match_id) {
         try{
+            $teams_created = false;
 
             //-- Build Response. Get current Match and check if we have teams
             $current_teams = $this->getMatchTeams($match_id);
@@ -141,8 +142,11 @@ class MatchLogic {
 
                     /// --- SHUFFLE SELECTOR V 1.0
                     $this->createTeams($match_id,$all_players);
+                    $teams_created = true;
                 }
             }
+
+            return $teams_created;
 
         }catch (\Exception $e) {
             throw $e;
@@ -195,6 +199,8 @@ class MatchLogic {
                 $this->assignMatchTeamIdToPlayers($match_id,$match_team_id,$list_of_user_ids);
             }
         }
+
+
     }
 
     public function addUserToMatch($user_id,$match_id) {
@@ -302,8 +308,69 @@ class MatchLogic {
         }
     }
 
+    public function assignMatchCaptain($match_id) {
+        try {
+
+            $match_players = Match::getAllMatchPlayers($match_id);
+
+            if(count($match_players)==0) {
+                throw new \Exception("No match players for match ".$match_id);
+            }
+
+            if(count($match_players) < self::MAX_PLAYERS_PER_MATCH) {
+                throw new \Exception("Tienen que estar todos para elegir al capitán");
+            }
+
+            $current_cap = Match::getFlaggedPlayers($match_id);
+            if(count($current_cap)==0) {
+                $random_player = array_rand($match_players);
+                $user_id = $random_player['user_id'];
+
+                Match::flagMatchPlayer($match_id,$user_id);
+            }else{
+                $user_id = $current_cap[0]["user_id"];
+            }
+
+            return $user_id;
+
+        }catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function mariconear($user_id,$match_id) {
+        try {
+
+            Match::unConfirmUserIdInMatchTeam($user_id,$match_id);
+            Match::deleteUserInMatchTeam($user_id,$match_id);
+
+        }catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function sendMatchFullEmail(Match $match) {
+
+        var_dump($match);
+        die();
+    }
+
+    public function addUserToTeamWithLessPlayers($user_id,$match_id)
+    {
+
+        $players_in_teams = Utilities::getPlayersInTeams($this->getAllMatchPlayers($match_id));
+
+        //-- We should Have two teams now
+        $count_of_first_team_players = count(reset($players_in_teams));
+        $count_of_second_team_players = count(end($players_in_teams));
 
 
+        if ($count_of_first_team_players >= $count_of_second_team_players) {
+            $add_to_match_team_id = array_keys($players_in_teams)[1];
+        } else {
+            $add_to_match_team_id = array_keys($players_in_teams)[0];
+        }
 
-
+        Match::assignMatchTeamIdToPlayers($match_id, $add_to_match_team_id, [$user_id]);
+    }
 }
