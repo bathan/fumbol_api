@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'SlimJson' => array($vendorDir . '/dogancelik/slim-json'),
     'Slim' => array($vendorDir . '/slim/slim'),
+    'Mustache' => array($vendorDir . '/mustache/mustache/src'),
 );

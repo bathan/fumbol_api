@@ -132,7 +132,6 @@ class User {
         try {
             $db = (new DBConnectionFactory())->getFumbolDataAccess();
 
-
             if(intval($this->row_id) > 0 )  {
 
                 //-- Update

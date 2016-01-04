@@ -5,10 +5,10 @@ namespace fumbol\common\logic;
 use fumbol\common\data\entities\Match;
 use fumbol\common\data\entities\User;
 use fumbol\common\data\entities\Venue;
+use fumbol\common\MatchUtilities;
 use fumbol\common\Utilities;
 
 class MatchLogic {
-
 
     const STATUS_NO_MATCH = 'NO_MATCH';
     const STATUS_LFM = 'LFM';
@@ -364,7 +364,6 @@ class MatchLogic {
         $count_of_first_team_players = count(reset($players_in_teams));
         $count_of_second_team_players = count(end($players_in_teams));
 
-
         if ($count_of_first_team_players >= $count_of_second_team_players) {
             $add_to_match_team_id = array_keys($players_in_teams)[1];
         } else {
@@ -372,5 +371,23 @@ class MatchLogic {
         }
 
         Match::assignMatchTeamIdToPlayers($match_id, $add_to_match_team_id, [$user_id]);
+    }
+
+    public function sendCurrentMatchEmail(Match $match) {
+
+        $match_players = $this->getAllMatchPlayers($match->getMatchId());
+        $match_info= $match->toArray();
+        MatchUtilities::addMoreInfoToMatch($match_info);
+
+        $render_data = [];
+        $render_data["match_day"] =  Utilities::SpanishDate(strtotime($match_info["match_date_time"]));
+        $render_data["venue_name"] =  $match_info["venue"]["venue_name"];
+        foreach($match_players as $mp) {
+            $render_data["players"][] = ["row_id"=>$mp["row_id"],"nickname"=>$mp["nickname"]];
+        }
+
+        $me = new \Mustache_Engine();
+
+        $email_body = $me->render(file_get_contents(_APP_PATH.'/email_templates/convocatoria.html'),$render_data);
     }
 }

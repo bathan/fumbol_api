@@ -9,35 +9,30 @@ $app->add(new \SlimJson\Middleware([
     'json.debug' => false
 ]));
 
-$app->get('/api/hello/:name', function ($name) use ($app) {
-    $app->render(200,['name'=>$name]);
-});
-
+//-- TODO:: Create variables with resources and send those variables instead of instancing every time?
 $resourceFactory = new ResourceFactory($app);
 
+//-- Groups IGNORE
+$app->get('/groups/:groupId?',      [$resourceFactory->getGroupResource(), 'getGroup']);
+$app->post('/groups/?',             [$resourceFactory->getGroupResource(), 'addGroup']);
+$app->post('/groups/:groupId?',     [$resourceFactory->getGroupResource(), 'updateGroup']);
+
 //-- Users
-$app->post('/api/users/?',              [$resourceFactory->getUserResource(), 'addUser']);
-$app->post('/api/users/login/?',        [$resourceFactory->getUserResource(), 'loginUser']);
-$app->post('/api/users/token/?',        [$resourceFactory->getUserResource(), 'tokenTest']);
-
-
-//-- Groups
-$app->get('/api/groups/:groupId?',      [$resourceFactory->getGroupResource(), 'getGroup']);
-$app->post('/api/groups/?',             [$resourceFactory->getGroupResource(), 'addGroup']);
-$app->post('/api/groups/:groupId?',     [$resourceFactory->getGroupResource(), 'updateGroup']);
-
+$app->post('/users/?',              [$resourceFactory->getUserResource(), 'addUser']);
+$app->post('/users/login/?',        [$resourceFactory->getUserResource(), 'loginUser']);
+$app->post('/users/token/?',        [$resourceFactory->getUserResource(), 'tokenTest']);
 
 //-- Matches
-$app->get('/api/match/check?',          [$resourceFactory->getMatchResource(), 'check']);
-$app->get('/api/match/getCurrentMatch?',          [$resourceFactory->getMatchResource(), 'getCurrentMatch']);
-$app->post('/api/match/signup?',        [$resourceFactory->getMatchResource(), 'signup']);
-$app->get('/api/match/confirm/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'confirm']);
-$app->get('/api/match/shuffle/?',        [$resourceFactory->getMatchResource(), 'shuffle']);
-$app->get('/api/match/mariconear/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'mariconear']);
+$app->get('/match/check?',                              [$resourceFactory->getMatchResource(), 'check']);
 
+$app->get('/match/getCurrentMatch?',                    [$resourceFactory->getMatchResource(), 'getCurrentMatch']);
+$app->post('/match/signup?',                            [$resourceFactory->getMatchResource(), 'signup']);
+$app->get('/match/confirm/:token/:match_id?',           [$resourceFactory->getMatchResource(), 'confirm']);
+$app->get('/match/shuffle/?',                           [$resourceFactory->getMatchResource(), 'shuffle']);
+$app->get('/match/mariconear/:token/:match_id?',        [$resourceFactory->getMatchResource(), 'mariconear']);
 
 
 //-- ScoreBoard
-$app->post('/api/scoreboard/?',          [$resourceFactory->getScoreBoardResource(), 'update']);
+$app->post('/scoreboard/?',          [$resourceFactory->getScoreBoardResource(), 'update']);
 
 $app->run();

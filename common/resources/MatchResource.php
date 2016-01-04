@@ -1,10 +1,12 @@
 <?php
+
 namespace fumbol\common\resources {
 
 
     use fumbol\common\data\entities\Match;
     use fumbol\common\Language;
     use fumbol\common\logic\MatchLogic;
+    use fumbol\common\MatchUtilities;
     use fumbol\common\UserUtilities;
     use fumbol\common\Utilities;
 
@@ -25,12 +27,9 @@ namespace fumbol\common\resources {
 
                 @$current_match = $this->match_logic->getCurrentMatch();
 
-                $response_data = [];
+                //-- Build Response
+                $response_data = $this->buildMatchAndTeamsResponse($current_match);
 
-                if(!is_null($current_match)) {
-                    $current_match = $current_match->toArray();
-                    $response_data = ['current_match'=>$current_match];
-                }
 
                 $this->getApp()->render(
                     200,
@@ -88,11 +87,16 @@ namespace fumbol\common\resources {
                 //-- Check and Create Teams
                 $teams_created = $this->match_logic->checkAndCreateTeams($match_id);
 
+                /*
+                 TODO:// Revisar toda esta logica. Cuando estamos en modo normal de convocatoria falla. Hay que agregar más parametros al if
+
                 if(!$teams_created) {
                     //-- Los equipos ya estaban creados. Probablemente se anotó alguien luego de que se bajó otro.
                     //-- Hay que agregarlo en el equipo que menos tenga gente tenga.
                     $this->match_logic->addUserToTeamWithLessPlayers($user_id,$match_id);
                 }
+
+                */
 
                 //-- Assing Capt
                 try {
@@ -111,6 +115,13 @@ namespace fumbol\common\resources {
                     //-- Ok, It got complete with this last one. We should Shoot an email letting people know
                     try{
                         $this->match_logic->sendMatchFullEmail($current_match);
+                    }catch(\Exception $e) {
+                        //-- TODO :: Notify someone
+                    }
+                }else{
+                    //-- Its not full, we need to send the current status email
+                    try{
+                        $this->match_logic->sendCurrentMatchEmail($current_match);
                     }catch(\Exception $e) {
                         //-- TODO :: Notify someone
                     }
@@ -209,14 +220,24 @@ namespace fumbol\common\resources {
             //-- Build Response. Get current Match and check if we have teams
             $current_teams = $this->match_logic->getMatchTeams($match_id);
 
-            $api_response = ["match" => $match->toArray()];
-            //-- Fetch Players In teams Again from DB TODO:: Maybe we can skip this db query with what we have in memory
-            $players_in_teams = Utilities::getPlayersInTeams($this->match_logic->getAllMatchPlayers($match_id));
+            $current_match = $match->toArray();
+            MatchUtilities::addMoreInfoToMatch($current_match);
 
-            foreach ($current_teams as $team) {
-                $match_team_id = intval($team['match_team_id']);
-                $api_response["teams"][$match_team_id] = array_merge($team, ["players" => $players_in_teams[$match_team_id]]);
+            $api_response = ["match" => $current_match];
+            //-- Fetch Players In teams Again from DB TODO:: Maybe we can skip this db query with what we have in memory
+            $all_players = $this->match_logic->getAllMatchPlayers($match_id);
+
+            $players_in_teams = Utilities::getPlayersInTeams($all_players);
+
+            if(count($current_teams)>0) {
+                foreach ($current_teams as $team) {
+                    $match_team_id = intval($team['match_team_id']);
+                    $api_response["teams"][$match_team_id] = array_merge($team, ["players" => $players_in_teams[$match_team_id]]);
+                }
+            }else{
+                $api_response["players"] = $all_players;
             }
+
 
             return $api_response;
         }

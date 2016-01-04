@@ -3,7 +3,7 @@ define("_APP_DEBUG",true);
 
 //-- LOCAL
 
-define("_APP_PATH","/home/bathan/www/fumbol");
+define("_APP_PATH","/home/bathan/www/fumbol-api");
 define('_APP_URL', 'http://fumbol.ttt.com.ar/');
 define('_INSTALL_URL', 'http://fumbol.tttt.com.ar/');
 
